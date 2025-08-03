@@ -6,10 +6,11 @@ from models.database import execute_query
 from decimal import Decimal
 
 class Client:
-    def __init__(self, nom, prenom='', activite='', phone='', email='', address='', 
+    def __init__(self, nom, prenom='', activite='', phone='', email='', address='',
                  montant=0.0, type='', regime_fiscal='', agent_responsable='', 
                  forme_juridique='', regime_cnas='', mode_paiement='', 
-                 honoraires_mois=0.0, id=None):
+                 honoraires_mois=0.0, indicateur='', recette_impots='', 
+                 observation='', id=None):
         self.id = id
         self.nom = nom
         self.prenom = prenom
@@ -25,6 +26,9 @@ class Client:
         self.regime_cnas = regime_cnas
         self.mode_paiement = mode_paiement
         self.honoraires_mois = Decimal(str(honoraires_mois))
+        self.indicateur = indicateur
+        self.recette_impots = recette_impots
+        self.observation = observation
 
     @staticmethod
     def get_all(search_term=None, sort_by='nom'):
@@ -76,31 +80,35 @@ class Client:
             # Update existing client
             query = """
             UPDATE clients SET 
-            nom=%s, prenom=%s, activite=%s, phone=%s, email=%s, 
-            address=%s, montant=%s, type=%s, regime_fiscal=%s, agent_responsable=%s,
-            forme_juridique=%s, regime_cnas=%s, mode_paiement=%s, honoraires_mois=%s
+            nom=%s, prenom=%s, activite=%s, phone=%s, email=%s, address=%s, 
+            montant=%s, type=%s, regime_fiscal=%s, agent_responsable=%s,
+            forme_juridique=%s, regime_cnas=%s, mode_paiement=%s, honoraires_mois=%s,
+            indicateur=%s, recette_impots=%s, observation=%s
             WHERE id=%s
             """
             params = (
                 self.nom, self.prenom, self.activite, self.phone, self.email, 
                 self.address, float(self.montant), self.type, self.regime_fiscal,
                 self.agent_responsable, self.forme_juridique, self.regime_cnas,
-                self.mode_paiement, float(self.honoraires_mois),
+                self.mode_paiement, float(self.honoraires_mois), self.indicateur,
+                self.recette_impots, self.observation,
                 self.id
             )
         else:
             # Insert new client
             query = """
             INSERT INTO clients 
-            (nom, prenom, activite, phone, email, address, montant, type, regime_fiscal, 
-             agent_responsable, forme_juridique, regime_cnas, mode_paiement, honoraires_mois) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (nom, prenom, activite, phone, email, address, montant, type, regime_fiscal,
+             agent_responsable, forme_juridique, regime_cnas, mode_paiement, honoraires_mois,
+             indicateur, recette_impots, observation) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             params = (
                 self.nom, self.prenom, self.activite, self.phone, self.email, 
                 self.address, float(self.montant), self.type, self.regime_fiscal,
                 self.agent_responsable, self.forme_juridique, self.regime_cnas,
-                self.mode_paiement, float(self.honoraires_mois)
+                self.mode_paiement, float(self.honoraires_mois), self.indicateur,
+                self.recette_impots, self.observation
             )
         
         execute_query(query, params)

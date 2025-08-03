@@ -48,16 +48,37 @@ class ClientView(BaseView):
         dropdown.pack(side="right", padx=5)
 
         # Treeview
-        columns = ("Nom", "Prénom", "Activité", "Téléphone", "Adresse", 
-                  "Montant", "Régime Fiscal", "Agent", "Forme Juridique")
+        columns = ("Nom", "Activité", "Téléphone", "Montant", "Régime Fiscal", 
+                  "Agent", "Forme Juridique", "Régime CNAS", "Mode Paiement", 
+                  "Indicateur", "Recette Impôts", "Observation")
         
+        # Create frame for treeview with scrollbars
+        tree_frame = ctk.CTkFrame(self.parent)
+        tree_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Create treeview with scrollbars
         self.tree = self.create_treeview(columns)
-        self.tree.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Vertical scrollbar
+        v_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="vertical", command=self.tree.yview)
+        v_scrollbar.pack(side="right", fill="y")
+        self.tree.configure(yscrollcommand=v_scrollbar.set)
+        
+        # Horizontal scrollbar
+        h_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="horizontal", command=self.tree.xview)
+        h_scrollbar.pack(side="bottom", fill="x")
+        self.tree.configure(xscrollcommand=h_scrollbar.set)
+        
+        # Pack treeview
+        self.tree.pack(side="left", fill="both", expand=True)
         self.tree.bind('<<TreeviewSelect>>', lambda event: self.on_item_select(event, self.tree))
 
         # Configure column widths
         for col in columns:
-            self.tree.column(col, width=100, anchor="nw")
+            if col in ["Observation", "Recette Impôts"]:
+                self.tree.column(col, width=150, anchor="nw")
+            else:
+                self.tree.column(col, width=100, anchor="nw")
 
     def on_sort_change(self, choice):
         """Handle sort option change"""
@@ -98,14 +119,17 @@ class ClientView(BaseView):
                 
                 row_data = (
                     client.get('nom', ''),
-                    client.get('prenom', ''),
                     client.get('activite', ''),
                     client.get('phone', ''),
-                    client.get('address', ''),
                     formatted_montant,
                     client.get('regime_fiscal', ''),
                     client.get('agent_responsable', ''),
-                    client.get('forme_juridique', '')
+                    client.get('forme_juridique', ''),
+                    client.get('regime_cnas', ''),
+                    client.get('mode_paiement', ''),
+                    client.get('indicateur', ''),
+                    client.get('recette_impots', ''),
+                    client.get('observation', '')
                 )
                 display_data.append(row_data)
             
@@ -126,7 +150,7 @@ class ClientView(BaseView):
             
         try:
             client_id = self.controller.get_client_id_by_details(
-                self.selected_item[0], self.selected_item[1], self.selected_item[2]
+                self.selected_item[0], '', self.selected_item[2]  # Using empty string for prenom since it's removed
             )
             
             if client_id:
@@ -150,7 +174,7 @@ class ClientView(BaseView):
         if self.confirm_action("Voulez-vous vraiment supprimer ce client ?"):
             try:
                 client_id = self.controller.get_client_id_by_details(
-                    self.selected_item[0], self.selected_item[1], self.selected_item[3]
+                    self.selected_item[0], '', self.selected_item[2]  # Using empty string for prenom since it's removed
                 )
                 
                 if client_id:

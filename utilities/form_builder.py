@@ -39,9 +39,9 @@ class FormBuilder:
             ("Nom*", "nom"),
             ("Activité", "activite"),
             ("Téléphone", "phone"),
-            ("Adresse", "address"),
             ("Montant", "montant"),
-            ("Honoraires/Mois", "honoraires_mois")
+            ("Honoraires/Mois", "honoraires_mois"),
+            ("Indicateur", "indicateur")
         ]
         
         for label, field in left_fields:
@@ -52,11 +52,11 @@ class FormBuilder:
 
         # Right side fields
         right_fields = [
-            ("Prénom*", "prenom"),
             ("Email", "email"),
             ("Agent Responsable", "agent_responsable"),
             ("Type", "type"),
-            ("Mode Paiement", "mode_paiement")
+            ("Mode Paiement", "mode_paiement"),
+            ("Recette Impôts", "recette_impots")
         ]
         
         for label, field in right_fields:
@@ -96,6 +96,11 @@ class FormBuilder:
         )
         regime_cnas_dropdown.pack(padx=10, pady=5, fill="x")
 
+        # Add observation field (text area)
+        ctk.CTkLabel(bottom_frame, text="Observation").pack(pady=(10, 0))
+        observation_textbox = ctk.CTkTextbox(bottom_frame, height=80)
+        observation_textbox.pack(padx=10, pady=5, fill="x")
+
         # Pre-fill form if editing
         if client_data:
             for field, entry in entries.items():
@@ -110,6 +115,8 @@ class FormBuilder:
                 forme_juridique_var.set(client_data['forme_juridique'])
             if client_data.get('regime_cnas'):
                 regime_cnas_var.set(client_data['regime_cnas'])
+            if client_data.get('observation'):
+                observation_textbox.insert("1.0", client_data['observation'])
 
         def save():
             try:
@@ -117,6 +124,7 @@ class FormBuilder:
                 data['regime_fiscal'] = regime_fiscal_var.get()
                 data['forme_juridique'] = forme_juridique_var.get()
                 data['regime_cnas'] = regime_cnas_var.get()
+                data['observation'] = observation_textbox.get("1.0", "end-1c")
                 
                 if client_data:
                     controller.update_client(client_data['id'], data)
